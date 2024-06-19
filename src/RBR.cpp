@@ -20,6 +20,7 @@ namespace g {
     static M4 horizon_lock_matrix = glm::identity<M4>();
     static glm::vec3 seat_translation;
     static bool is_driving;
+    static bool is_vr_view_focused;
     static bool is_rendering_3d;
     static bool is_rendering_car;
     static bool is_rendering_particles;
@@ -253,12 +254,23 @@ namespace rbr {
         }
 
         g::is_driving = g::game_mode == GameMode::Driving;
-        g::is_rendering_3d = g::is_driving
+        g::is_vr_view_focused = g::vr->view_focused();
+
+        if (g::is_driving && !g::is_vr_view_focused) {
+            // Player is driving, cannot see the game through the headset,
+            // e.g. because an overlay is in front of the game view, the
+            // headset is not on their head, or the headset is disconnected.
+            dbg("VR view is not focused");
+            // TODO Pause game.
+        }
+        
+        g::is_rendering_3d = g::is_vr_view_focused
+            && (g::is_driving
             || (g::cfg.render_mainmenu_3d && g::game_mode == GameMode::MainMenu)
             || (g::cfg.render_pausemenu_3d && g::game_mode == GameMode::Pause && g::previous_game_mode != GameMode::Replay)
             || (g::cfg.render_pausemenu_3d && g::game_mode == GameMode::Pause && (g::previous_game_mode == GameMode::Replay && g::cfg.render_replays_3d))
             || (g::cfg.render_prestage_3d && g::game_mode == GameMode::PreStage)
-            || (g::cfg.render_replays_3d && g::game_mode == GameMode::Replay);
+            || (g::cfg.render_replays_3d && g::game_mode == GameMode::Replay));
 
         if (!g::car_rotation_ptr) [[unlikely]] {
             g::car_rotation_ptr = reinterpret_cast<M3*>((ptr + CAR_ROTATION_OFFSET));
