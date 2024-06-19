@@ -523,7 +523,22 @@ void OpenXR::submit_frames_to_hmd(IDirect3DDevice9* dev)
 
 bool OpenXR::view_focused()
 {
-    return true;
+    auto retries = 10;
+    while (retries-- > 0) {
+        XrEventDataBuffer eventData = {
+            .type = XR_TYPE_EVENT_DATA_BUFFER,
+            .next = nullptr,
+        };
+        if (auto res = xrPollEvent(instance, &eventData); res == XR_SUCCESS) {
+            if (eventData.type == XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED) {
+                const XrEventDataSessionStateChanged* sessionStateChangedEvent = reinterpret_cast<const XrEventDataSessionStateChanged*>(&eventData);
+                
+                return sessionStateChangedEvent->state == XR_SESSION_STATE_FOCUSED;
+            }
+        }
+    }
+
+    return false;
 }
 
 std::optional<XrViewState> OpenXR::update_views()
