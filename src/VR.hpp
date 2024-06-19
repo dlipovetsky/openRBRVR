@@ -149,6 +149,7 @@ public:
     RenderContext* get_current_render_context() const { return current_render_context; }
     bool create_companion_window_buffer(IDirect3DDevice9* dev);
 
+    virtual bool view_focused() = 0;
     virtual void reset_view() = 0;
     virtual VRRuntime get_runtime_type() const = 0;
     virtual void set_render_context(const std::string& name);

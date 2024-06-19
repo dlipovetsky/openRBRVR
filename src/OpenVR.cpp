@@ -214,6 +214,14 @@ FrameTimingInfo OpenVR::get_frame_timing()
     return ret;
 }
 
+bool OpenVR::view_focused()
+{
+    auto activityLevel = hmd->GetTrackedDeviceActivityLevel(vr::k_unTrackedDeviceIndex_Hmd);
+    auto shouldPause = hmd->ShouldApplicationPause();
+
+    return shouldPause || (activityLevel == vr::k_EDeviceActivityLevel_UserInteraction);
+}
+
 static constexpr std::string vr_compositor_error_str(vr::VRCompositorError e)
 {
     switch (e) {

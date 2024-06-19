@@ -32,6 +32,7 @@ public:
     bool update_vr_poses() override;
     void submit_frames_to_hmd(IDirect3DDevice9* dev) override;
     FrameTimingInfo get_frame_timing() override;
+    bool view_focused() override;
     void reset_view() override
     {
         vr::VRChaperone()->ResetZeroPose(vr::ETrackingUniverseOrigin::TrackingUniverseSeated);

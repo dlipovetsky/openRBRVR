@@ -521,6 +521,11 @@ void OpenXR::submit_frames_to_hmd(IDirect3DDevice9* dev)
     g::d3d_vr->EndVRSubmit();
 }
 
+bool OpenXR::view_focused()
+{
+    return true;
+}
+
 std::optional<XrViewState> OpenXR::update_views()
 {
     XrViewState view_state = {

@@ -65,6 +65,7 @@ public:
     bool update_vr_poses() override;
     void prepare_frames_for_hmd(IDirect3DDevice9* dev) override;
     void submit_frames_to_hmd(IDirect3DDevice9* dev) override;
+    bool view_focused() override;
     void reset_view() override;
     FrameTimingInfo get_frame_timing() override;
     VRRuntime get_runtime_type() const override { return OPENXR; }
