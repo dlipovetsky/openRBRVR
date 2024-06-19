@@ -256,12 +256,17 @@ namespace rbr {
         g::is_driving = g::game_mode == GameMode::Driving;
         g::is_vr_view_focused = g::vr->view_focused();
 
+        if (!g::is_vr_view_focused) {
+            dbg("VR view is not focused");
+        }
+
         if (g::is_driving && !g::is_vr_view_focused) {
             // Player is driving, cannot see the game through the headset,
             // e.g. because an overlay is in front of the game view, the
             // headset is not on their head, or the headset is disconnected.
-            dbg("VR view is not focused");
+
             // TODO Pause game.
+            dbg("Pausing game");
         }
         
         g::is_rendering_3d = g::is_vr_view_focused
