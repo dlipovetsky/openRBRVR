@@ -42,6 +42,6 @@ public:
     }
     virtual void set_render_context(const std::string& name) override;
 
-    void process_events() override;
+    void update_vr_readiness() override;
     bool ready_to_render() override;
 };

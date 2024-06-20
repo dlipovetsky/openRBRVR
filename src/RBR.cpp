@@ -341,6 +341,10 @@ namespace rbr {
             }
         }
 
+        if (g::vr && !g::vr->ready_to_render() && g::is_driving) [[unlikely]] {
+            // Pause the game.
+        }
+
         return *reinterpret_cast<uint32_t*>(ptr + 0x720) == 0;
     }
 
@@ -358,6 +362,8 @@ namespace rbr {
     // RBR 3D scene draw function is rerouted here
     void __fastcall render(void* p)
     {
+        g::vr->update_vr_readiness();
+
         auto do_rendering = init_or_update_game_data(reinterpret_cast<uintptr_t>(p));
 
         if (g::d3d_dev->GetRenderTarget(0, &g::original_render_target) != D3D_OK) [[unlikely]] {
@@ -371,7 +377,7 @@ namespace rbr {
             return;
         }
 
-        if (g::vr) [[likely]] {
+        if (g::vr->ready_to_render()) [[likely]] {
             // UpdateVRPoses should be called as close to rendering as possible
             if (!g::vr->update_vr_poses()) {
                 dbg("UpdateVRPoses failed, skipping frame");

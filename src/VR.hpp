@@ -153,7 +153,7 @@ public:
     virtual VRRuntime get_runtime_type() const = 0;
     virtual void set_render_context(const std::string& name);
 
-    virtual void process_events() = 0;
+    virtual void update_vr_readiness() = 0;
     virtual bool ready_to_render() = 0;
 };
 
