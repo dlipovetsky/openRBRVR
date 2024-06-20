@@ -365,6 +365,16 @@ void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companio
     eye_pos[RightEye] = glm::identity<glm::mat4x4>();
 }
 
+void OpenXR::process_events()
+{
+    return;
+}
+
+bool OpenXR::ready_to_render()
+{
+    return true;
+}
+
 const char* OpenXR::get_device_extensions()
 {
     if (device_extensions.empty()) {

@@ -71,4 +71,7 @@ public:
 
     const char* get_device_extensions();
     const char* get_instance_extensions();
+
+    void process_events() override;
+    bool ready_to_render() override;
 };

@@ -152,6 +152,9 @@ public:
     virtual void reset_view() = 0;
     virtual VRRuntime get_runtime_type() const = 0;
     virtual void set_render_context(const std::string& name);
+
+    virtual void process_events() = 0;
+    virtual bool ready_to_render() = 0;
 };
 
 bool create_quad(IDirect3DDevice9* dev, float size, float aspect, IDirect3DVertexBuffer9** dst);

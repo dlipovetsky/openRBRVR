@@ -100,6 +100,15 @@ OpenVR::OpenVR()
     eye_pos[RightEye] = glm::inverse(m4_from_steamvr_matrix(hmd->GetEyeToHeadTransform(static_cast<vr::EVREye>(RightEye))));
 }
 
+void OpenVR::process_events() {
+    return;
+}
+
+bool OpenVR::ready_to_render()
+{
+    return true;
+}
+
 void OpenVR::set_render_context(const std::string& name)
 {
     VRInterface::set_render_context(name);
