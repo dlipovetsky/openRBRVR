@@ -28,6 +28,18 @@ static std::string XrVersionToString(const XrVersion version)
         version & 0xFFFFFFFF);
 }
 
+static std::string XrStructureTypeToString(const XrInstance& instance, const XrStructureType& type)
+{
+    char buf[XR_MAX_RESULT_STRING_SIZE] = { 0 };
+
+    if (auto err = xrStructureTypeToString(instance, type, buf); err != XR_SUCCESS) {
+        dbg("Could not convert XrStructureType to string");
+        return "";
+    }
+
+    return buf;
+}
+
 template <typename T>
 T get_extension(XrInstance instance, const std::string& fnName)
 {
@@ -523,16 +535,18 @@ void OpenXR::submit_frames_to_hmd(IDirect3DDevice9* dev)
 
 bool OpenXR::view_focused()
 {
-    auto retries = 10;
+    auto retries = 10000;
     while (retries-- > 0) {
         XrEventDataBuffer eventData = {
             .type = XR_TYPE_EVENT_DATA_BUFFER,
             .next = nullptr,
         };
-        if (auto res = xrPollEvent(instance, &eventData); res == XR_SUCCESS) {
+        auto res = xrPollEvent(instance, &eventData);
+        if (res == XR_SUCCESS) {
+            dbg(std::format("xrPollEvent type: {}", XrStructureTypeToString(instance, eventData.type)));
             if (eventData.type == XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED) {
                 const XrEventDataSessionStateChanged* sessionStateChangedEvent = reinterpret_cast<const XrEventDataSessionStateChanged*>(&eventData);
-                
+
                 return sessionStateChangedEvent->state == XR_SESSION_STATE_FOCUSED;
             }
         }
