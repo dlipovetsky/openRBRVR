@@ -254,7 +254,12 @@ namespace rbr {
         }
 
         g::is_driving = g::game_mode == GameMode::Driving;
-        g::is_vr_view_focused = g::vr->view_focused();
+       
+        if (g::vr) {
+            g::is_vr_view_focused = g::vr->view_focused();
+        } else {
+            g::is_vr_view_focused = false;
+        }
 
         if (!g::is_vr_view_focused) {
             dbg("VR view is not focused");
