@@ -155,6 +155,7 @@ public:
 
     virtual void update_vr_readiness() = 0;
     virtual bool ready_to_render() = 0;
+    virtual bool ready_to_drive() = 0;
 };
 
 bool create_quad(IDirect3DDevice9* dev, float size, float aspect, IDirect3DVertexBuffer9** dst);

@@ -109,6 +109,11 @@ bool OpenVR::ready_to_render()
     return true;
 }
 
+bool OpenVR::ready_to_drive()
+{
+    return true;
+}
+
 void OpenVR::set_render_context(const std::string& name)
 {
     VRInterface::set_render_context(name);

@@ -44,4 +44,5 @@ public:
 
     void update_vr_readiness() override;
     bool ready_to_render() override;
+    bool ready_to_drive() override;
 };

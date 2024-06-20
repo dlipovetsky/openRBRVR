@@ -375,6 +375,11 @@ bool OpenXR::ready_to_render()
     return true;
 }
 
+bool OpenXR::ready_to_drive()
+{
+    return true;
+}
+
 const char* OpenXR::get_device_extensions()
 {
     if (device_extensions.empty()) {
