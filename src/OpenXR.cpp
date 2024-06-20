@@ -367,6 +367,23 @@ void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companio
 
 void OpenXR::update_vr_readiness()
 {
+    // If system_id is not defined, call xrGetSystem
+    // If session is not defined, call xrCreateSession
+    
+    // Set ready_to_render to false
+    // Set ready_to_drive to false
+    
+    // Call xrPollEvent until it returns an event, and handle the event:
+    // XR_TYPE_EVENT_DATA_{REFERENCE_SPACE_CHANGE_PENDING,INTERACTION_PROFILE_CHANGED} -> Do nothing. Return.
+    // XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING -> Call xrDestroySession. Zero out session and system_id. Return.
+    // XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED
+    //      XR_SESSION_STATE_READY -> Call xrBeginSession. Return.
+    //      XR_SESSION_STATE_{SYNCHRONIZED,VISIBLE,FOCUSED} -> Call xrWaitFrame and xrBeginFrame.
+    //          XR_SESSION_STATE_{SYNCHRONIZED,VISIBLE} -> Set ready_to_render to true! Return.
+    //          XR_SESSION_STATE_FOCUSED -> Set ready_to_drive to true! Return.
+    //      XR_SESSION_STATE_STOPPING -> Call xrEndSession. Call xrDestroySession. Zero out session and system_id. Return.
+    //      XR_SESSION_STATE_EXITING -> Call xrDestroySession. Zero out session and system_id. Return.
+    //      XR_SESSION_STATE_LOSS_PENDING -> Call xrDestroySession. Zero out session and system_id. Return.
     return;
 }
 
