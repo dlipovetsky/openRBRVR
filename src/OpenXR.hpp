@@ -52,8 +52,9 @@ private:
     {
         return reinterpret_cast<OpenXRRenderContext*>(current_render_context->ext);
     }
-    void update_xr_system();
-    void update_xr_session();
+    void create_xr_system();
+    void create_xr_session();
+    void poll_xr_events();
 
 public:
     OpenXR();
@@ -70,6 +71,7 @@ public:
 
     void shutdown_vr() override;
     bool update_vr_poses() override;
+    bool update_vr_session() override;
     void prepare_frames_for_hmd(IDirect3DDevice9* dev) override;
     void submit_frames_to_hmd(IDirect3DDevice9* dev) override;
     void reset_view() override;

@@ -358,6 +358,13 @@ namespace rbr {
     // RBR 3D scene draw function is rerouted here
     void __fastcall render(void* p)
     {
+        if (g::vr) [[likely]] {
+            auto vr_session_ready = g::vr->update_vr_session();
+            // TODO (If the VR session is not ready, we will not update VR poses,
+            // or perform 3D rendering. If the game is in driving mode, we will
+            // pause the game.)
+        }
+
         auto do_rendering = init_or_update_game_data(reinterpret_cast<uintptr_t>(p));
 
         if (g::d3d_dev->GetRenderTarget(0, &g::original_render_target) != D3D_OK) [[unlikely]] {

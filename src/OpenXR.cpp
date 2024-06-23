@@ -109,11 +109,11 @@ OpenXR::OpenXR()
         }
         throw std::runtime_error(std::format("Failed to initialize OpenXR: xrCreateInstance {}", static_cast<int>(err)));
     }
-    update_xr_system();
+    create_xr_system();
 }
 
 // Must call this before handling get_device_extensions or get_instance_extensions
-void OpenXR::update_xr_system() {
+void OpenXR::create_xr_system() {
     if (system_id != XR_NULL_SYSTEM_ID) {
         throw std::runtime_error(std::format("Tried to get a new XR system while one is active"));
     }
@@ -127,7 +127,7 @@ void OpenXR::update_xr_system() {
     }
 }
 
-void OpenXR::update_xr_session() {
+void OpenXR::create_xr_session() {
     if (session != XR_NULL_HANDLE) {
         throw std::runtime_error(std::format("Tried to create an XR session while one is active"));
     }
@@ -309,9 +309,24 @@ OXR_VK_DEVICE_DESC vkDesc;
     if (auto err = xrCreateReferenceSpace(session, &space_create_info, &space); err != XR_SUCCESS) {
         throw std::runtime_error(std::format("Failed to initialize OpenXR. xrCreateReferenceSpace {}", XrResultToString(instance, err)));
     }
-    bool session_running = false;
-    auto retries = 10;
-    while (retries-- > 0) {
+
+    // In OpenXR we don't have separate matrices for eye positions
+    // The eye position is taken account in the projection matrix already
+    eye_pos[LeftEye] = glm::identity<glm::mat4x4>();
+    eye_pos[RightEye] = glm::identity<glm::mat4x4>();
+}
+
+bool OpenXR::update_vr_session() {
+    poll_xr_events();
+    // We don't do anything meaningful, yet.
+    // Given the right events, this is where we might call create_xr_system()
+    // or create_xr_session() again.,
+    return true;
+}
+
+
+void OpenXR::poll_xr_events() {
+    while (true) {
         XrEventDataBuffer eventData = {
             .type = XR_TYPE_EVENT_DATA_BUFFER,
             .next = nullptr,
@@ -331,30 +346,17 @@ OXR_VK_DEVICE_DESC vkDesc;
                         throw std::runtime_error(std::format("Failed to initialize OpenXR. xrBeginSession: {}", XrResultToString(instance, res)));
                     }
 
-                    session_running = true;
                     break;
                 }
+
+                // TODO (a state we don't yet handle)
+                break;
             }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-
-    if (!session_running) {
-        dbg("Did not receive XR_SESSION_STATE_READY event, launching the session anyway...");
-        XrSessionBeginInfo sessionBeginInfo = {
-            .type = XR_TYPE_SESSION_BEGIN_INFO,
-            .next = nullptr,
-            .primaryViewConfigurationType = XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
-        };
-        if (auto res = xrBeginSession(session, &sessionBeginInfo); res != XR_SUCCESS) {
-            throw std::runtime_error(std::format("Failed to initialize OpenXR. xrBeginSession: {}", XrResultToString(instance, res)));
+        } else {
+            // TODO (no event received)
+            break;
         }
     }
-
-    // In OpenXR we don't have separate matrices for eye positions
-    // The eye position is taken account in the projection matrix already
-    eye_pos[LeftEye] = glm::identity<glm::mat4x4>();
-    eye_pos[RightEye] = glm::identity<glm::mat4x4>();
 }
 
 void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companion_window_width, uint32_t companion_window_height)
@@ -382,7 +384,7 @@ void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companio
     m_companion_window_width = companion_window_width;
     m_companion_window_height = companion_window_height;
 
-    update_xr_session();
+    create_xr_session();
 }
 
 const char* OpenXR::get_device_extensions()

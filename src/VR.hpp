@@ -119,6 +119,7 @@ public:
     double aspect_ratio; // Desktop window aspect ratio
 
     virtual void shutdown_vr() = 0;
+    virtual bool update_vr_session() = 0;
     virtual bool update_vr_poses() = 0;
     virtual IDirect3DSurface9* prepare_vr_rendering(IDirect3DDevice9* dev, RenderTarget tgt, bool clear = true);
     virtual void finish_vr_rendering(IDirect3DDevice9* dev, RenderTarget tgt);

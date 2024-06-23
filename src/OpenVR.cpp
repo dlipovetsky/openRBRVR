@@ -68,6 +68,10 @@ void OpenVR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companio
     dbg("VR init successful\n");
 }
 
+bool OpenVR::update_vr_session() {
+    return true;
+}
+
 OpenVR::OpenVR()
     : hmd(nullptr)
     , compositor(nullptr)

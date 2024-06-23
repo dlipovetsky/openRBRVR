@@ -30,6 +30,7 @@ public:
     }
     void prepare_frames_for_hmd(IDirect3DDevice9* dev) override;
     bool update_vr_poses() override;
+    bool update_vr_session() override;
     void submit_frames_to_hmd(IDirect3DDevice9* dev) override;
     FrameTimingInfo get_frame_timing() override;
     void reset_view() override
