@@ -109,7 +109,14 @@ OpenXR::OpenXR()
         }
         throw std::runtime_error(std::format("Failed to initialize OpenXR: xrCreateInstance {}", static_cast<int>(err)));
     }
+    update_xr_system();
+}
 
+// Must call this before handling get_device_extensions or get_instance_extensions
+void OpenXR::update_xr_system() {
+    if (system_id != XR_NULL_SYSTEM_ID) {
+        throw std::runtime_error(std::format("Tried to get a new XR system while one is active"));
+    }
     XrSystemGetInfo system_get_info = {
         .type = XR_TYPE_SYSTEM_GET_INFO,
         .next = nullptr,
@@ -120,28 +127,13 @@ OpenXR::OpenXR()
     }
 }
 
-void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companion_window_width, uint32_t companion_window_height)
-{
-    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMP, &gpu_start_query) != D3D_OK) {
-        throw std::runtime_error("VR initialization failed: CreateQuery");
-    }
-    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMP, &gpu_end_query) != D3D_OK) {
-        throw std::runtime_error("VR initialization failed: CreateQuery");
-    }
-    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMPDISJOINT, &gpu_disjoint_query) != D3D_OK) {
-        throw std::runtime_error("VR initialization failed: CreateQuery");
-    }
-    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMPFREQ, &gpu_freq_query) != D3D_OK) {
-        throw std::runtime_error("VR initialization failed: CreateQuery");
+void OpenXR::update_xr_session() {
+    if (session != XR_NULL_HANDLE) {
+        throw std::runtime_error(std::format("Tried to create an XR session while one is active"));
     }
 
-    Direct3DCreateVR(dev, vrdev);
-    if (!vrdev) {
-        throw std::runtime_error("VR initialization failed: Direct3DCreateVR");
-    }
-
-    OXR_VK_DEVICE_DESC vkDesc;
-    if ((*vrdev)->GetOXRVkDeviceDesc(&vkDesc) != D3D_OK) {
+OXR_VK_DEVICE_DESC vkDesc;
+    if ((*m_vrdev)->GetOXRVkDeviceDesc(&vkDesc) != D3D_OK) {
         throw std::runtime_error("VR initialization failed: GetOXRVkDeviceDesc");
     }
 
@@ -270,7 +262,7 @@ void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companio
             }
         }
 
-        init_surfaces(dev, ctx, companion_window_width, companion_window_height);
+        init_surfaces(m_dev, ctx, m_companion_window_width, m_companion_window_height);
 
         for (size_t i = 0; i < xr_ctx->views.size(); ++i) {
             xr_ctx->views[i] = { .type = XR_TYPE_VIEW };
@@ -363,6 +355,34 @@ void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companio
     // The eye position is taken account in the projection matrix already
     eye_pos[LeftEye] = glm::identity<glm::mat4x4>();
     eye_pos[RightEye] = glm::identity<glm::mat4x4>();
+}
+
+void OpenXR::init(IDirect3DDevice9* dev, IDirect3DVR9** vrdev, uint32_t companion_window_width, uint32_t companion_window_height)
+{
+    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMP, &gpu_start_query) != D3D_OK) {
+        throw std::runtime_error("VR initialization failed: CreateQuery");
+    }
+    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMP, &gpu_end_query) != D3D_OK) {
+        throw std::runtime_error("VR initialization failed: CreateQuery");
+    }
+    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMPDISJOINT, &gpu_disjoint_query) != D3D_OK) {
+        throw std::runtime_error("VR initialization failed: CreateQuery");
+    }
+    if (dev->CreateQuery(D3DQUERYTYPE_TIMESTAMPFREQ, &gpu_freq_query) != D3D_OK) {
+        throw std::runtime_error("VR initialization failed: CreateQuery");
+    }
+
+    Direct3DCreateVR(dev, vrdev);
+    if (!vrdev) {
+        throw std::runtime_error("VR initialization failed: Direct3DCreateVR");
+    }
+
+    m_dev = dev;
+    m_vrdev = vrdev;
+    m_companion_window_width = companion_window_width;
+    m_companion_window_height = companion_window_height;
+
+    update_xr_session();
 }
 
 const char* OpenXR::get_device_extensions()

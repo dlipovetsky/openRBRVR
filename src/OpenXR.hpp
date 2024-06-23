@@ -18,9 +18,9 @@ struct OpenXRRenderContext {
 
 class OpenXR : public VRInterface {
 private:
-    XrSession session;
-    XrInstance instance;
-    XrSystemId system_id;
+    XrSession session = XR_NULL_HANDLE;
+    XrInstance instance = XR_NULL_HANDLE;
+    XrSystemId system_id = XR_NULL_SYSTEM_ID;
     XrSpace space;
     XrSpace view_space;
     XrFrameState frame_state;
@@ -28,6 +28,11 @@ private:
     XrPosef view_pose;
     bool has_projection;
     bool reset_view_requested;
+
+    IDirect3DDevice9* m_dev;
+    IDirect3DVR9** m_vrdev;
+    uint32_t m_companion_window_width;
+    uint32_t m_companion_window_height;
 
     std::vector<char> device_extensions;
     std::vector<char> instance_extensions;
@@ -47,6 +52,8 @@ private:
     {
         return reinterpret_cast<OpenXRRenderContext*>(current_render_context->ext);
     }
+    void update_xr_system();
+    void update_xr_session();
 
 public:
     OpenXR();
